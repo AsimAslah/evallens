@@ -91,7 +91,7 @@ The version-controlled migration is `migrations/0001_initial.sql`.
 
 ```powershell
 pnpm db:migrate:local
-pnpm exec cf d1 create evallens-db
+pnpm exec cf d1 create --name evallens-db
 pnpm db:migrate:remote
 ```
 
@@ -117,11 +117,11 @@ Cloudflare currently recommends vinext for new Next.js applications on Workers. 
 
 ```powershell
 pnpm exec cf auth login
-pnpm exec cf d1 create evallens-db
+pnpm exec cf d1 create --name evallens-db
 pnpm db:migrate:remote
-pnpm exec cf secrets put ADMIN_API_TOKEN
 pnpm build
 pnpm deploy
+pnpm exec cf workers secrets update ADMIN_API_TOKEN --worker evallens
 ```
 
 After deployment verify `/`, `/api/health`, protected API rejection, authenticated save/reload, D1 persistence, analytics, showcase, and mobile navigation. No production URL is documented until these checks succeed.
