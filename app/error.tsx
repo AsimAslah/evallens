@@ -1,0 +1,2 @@
+"use client";
+export default function ErrorPage({reset}:{reset:()=>void}){return <div className="mx-auto max-w-xl px-5 py-24 text-center"><p className="eyebrow">Something went wrong</p><h1 className="mt-3 text-3xl font-extrabold">The view could not be loaded.</h1><p className="mt-3 text-sm leading-6 text-[var(--muted)]">Check that local D1 migrations are applied, then try again.</p><button className="btn btn-primary mt-6" onClick={reset}>Try again</button></div>}

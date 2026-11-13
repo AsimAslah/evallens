@@ -1,0 +1,1 @@
+export default function Loading(){return <div className="mx-auto max-w-7xl animate-pulse px-5 py-12 sm:px-8"><div className="h-3 w-28 rounded bg-[var(--panel-soft)]"/><div className="mt-4 h-10 w-2/3 rounded bg-[var(--panel-soft)]"/><div className="mt-8 grid gap-4 sm:grid-cols-3">{[1,2,3].map(item=><div className="panel h-40" key={item}/>)}</div></div>}

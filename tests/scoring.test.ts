@@ -1,0 +1,6 @@
+import { describe,expect,it } from "vitest";
+import { calculateNormalizedScore,preferenceDisagrees } from "@/lib/scoring";
+import type { Criterion,ScoreInput } from "@/lib/types";
+const criteria:Criterion[]=[{id:"accuracy",name:"Accuracy",description:"",weight:2,sortOrder:1},{id:"clarity",name:"Clarity",description:"",weight:1,sortOrder:2}];
+function score(criterionId:string,responseLabel:"a"|"b",value:number|null,applicable=true):ScoreInput{return{criterionId,responseLabel,score:value,applicable}}
+describe("rubric scoring",()=>{it("calculates weighted normalized scores",()=>{const result=calculateNormalizedScore([score("accuracy","a",5),score("clarity","a",2)],criteria,"a");expect(result).toEqual({normalized:80,earned:12,possible:15,applicableCount:2})});it("excludes N/A criteria",()=>{const result=calculateNormalizedScore([score("accuracy","a",5),score("clarity","a",null,false)],criteria,"a");expect(result.normalized).toBe(100);expect(result.possible).toBe(10)});it("prevents division by zero",()=>{expect(calculateNormalizedScore([score("accuracy","a",null,false)],criteria,"a").normalized).toBeNull()});it("keeps preference independent",()=>{expect(preferenceDisagrees("a",60,90)).toBe(true);expect(preferenceDisagrees("b",60,90)).toBe(false);expect(preferenceDisagrees("tie",60,90)).toBe(true);expect(preferenceDisagrees("a",80,80)).toBe(false)})});
