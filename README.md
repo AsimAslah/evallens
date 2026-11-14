@@ -4,6 +4,8 @@
 
 EvalLens is a full-stack AI response evaluation platform for pairwise comparison, rubric-based scoring, evidence-backed preference ranking, and honest evaluation analytics. Human judgment is the core feature; the application does not call a paid model API, generate the compared responses, or automatically retrain a model.
 
+**Live deployment:** [evallens.asimaslu7.workers.dev](https://evallens.asimaslu7.workers.dev)
+
 ## Project objectives
 
 EvalLens keeps the full evaluation trail together: the exact request, two supplied responses, consistent criterion scores, an explicit A/B/tie preference, response-specific evidence, and an actionable improvement. It demonstrates LLM quality assurance, human preference workflows, and Cloudflare-native full-stack engineering.
@@ -22,7 +24,7 @@ EvalLens keeps the full evaluation trail together: the exact request, two suppli
 
 ## Screenshots
 
-Screenshots will be added after a public deployment is verified. This repository does not claim a live URL or visual assets that do not yet exist.
+Screenshots are still pending. Use the verified live deployment above to inspect the current responsive interface.
 
 ## Tech stack
 
@@ -118,13 +120,21 @@ Cloudflare currently recommends vinext for new Next.js applications on Workers. 
 ```powershell
 pnpm exec cf auth login
 pnpm exec cf d1 create --name evallens-db
+$env:CLOUDFLARE_D1_ID="<database UUID returned above>"
 pnpm db:migrate:remote
+
+# Create this ignored file before the first Worker deployment:
+# .env.production.local
+# ADMIN_API_TOKEN=<cryptographically random value of at least 24 characters>
+# CLOUDFLARE_D1_ID=<database UUID>
+
 pnpm build
-pnpm deploy
-pnpm exec cf workers secrets update ADMIN_API_TOKEN --worker evallens
+pnpm exec cf deploy --prebuilt --secrets-file .env.production.local
 ```
 
-After deployment verify `/`, `/api/health`, protected API rejection, authenticated save/reload, D1 persistence, analytics, showcase, and mobile navigation. No production URL is documented until these checks succeed.
+The secrets file is required for the first deployment because the Worker does not exist yet. On later deployments, `pnpm deploy` can update the existing Worker; rotate the owner secret with `pnpm exec cf workers secrets update ADMIN_API_TOKEN --worker evallens` when needed.
+
+The production deployment was verified on 2026-11-14: public routes and `/api/health` returned 200, the database reported `connected`, unauthenticated owner access was rejected, and a temporary authenticated create/read/publish/delete cycle persisted correctly in D1.
 
 ## Security considerations
 
