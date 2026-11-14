@@ -5,6 +5,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: { default: "EvalLens — Evaluate Intelligence. Improve Quality.", template: "%s · EvalLens" },
   description: "Evidence-based pairwise evaluation, reusable rubrics, and honest analytics for AI responses.",
+  icons: { icon: "/icon.svg" },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

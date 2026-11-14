@@ -9,9 +9,9 @@ export interface ScoreResult {
 
 export function calculateNormalizedScore(scores: ScoreInput[], criteria: Criterion[], responseLabel: "a" | "b"): ScoreResult {
   const byId = new Map(criteria.map((criterion) => [criterion.id, criterion]));
-  const applicable = scores.filter((item) => item.responseLabel === responseLabel && item.applicable && item.score !== null);
-  const earned = applicable.reduce((sum, item) => sum + (item.score ?? 0) * (byId.get(item.criterionId)?.weight ?? 1), 0);
-  const possible = applicable.reduce((sum, item) => sum + 5 * (byId.get(item.criterionId)?.weight ?? 1), 0);
+  const applicable = scores.filter((item) => item.responseLabel === responseLabel && item.applicable && item.score !== null && byId.has(item.criterionId));
+  const earned = applicable.reduce((sum, item) => sum + (item.score ?? 0) * byId.get(item.criterionId)!.weight, 0);
+  const possible = applicable.reduce((sum, item) => sum + 5 * byId.get(item.criterionId)!.weight, 0);
   return { normalized: possible === 0 ? null : Math.round((earned / possible) * 1000) / 10, earned, possible, applicableCount: applicable.length };
 }
 

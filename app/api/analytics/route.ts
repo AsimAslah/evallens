@@ -1,6 +1,5 @@
 import { isOwnerRequest } from "@/lib/auth";
 import { listEvaluations } from "@/lib/db/repository";
-import { DEFAULT_CRITERIA } from "@/lib/constants";
 
 export async function GET(request: Request) {
   const records = await listEvaluations({ publicOnly: !isOwnerRequest(request, env.ADMIN_API_TOKEN) });
@@ -9,10 +8,12 @@ export async function GET(request: Request) {
   completed.forEach((record) => { preference[record.preferredResponse] += 1; });
   const byDate = new Map<string, number>();
   completed.forEach((record) => { const date = record.createdAt.slice(0, 10); byDate.set(date, (byDate.get(date) ?? 0) + 1); });
-  const criterion = DEFAULT_CRITERIA.map((item) => {
-    const values = completed.flatMap((record) => record.scores.filter((score) => score.criterionId === item.id && score.applicable && score.score !== null).map((score) => score.score as number));
-    return { name: item.name, average: values.length ? Math.round(values.reduce((sum, value) => sum + value, 0) / values.length * 100) / 100 : null, sampleSize: values.length };
-  });
+  const criterionMap = new Map<string, number[]>();
+  completed.forEach((record) => record.rubricCriteria.forEach((item) => {
+    const values = record.scores.filter((score) => score.criterionId === item.id && score.applicable && score.score !== null).map((score) => score.score as number);
+    criterionMap.set(item.name, [...(criterionMap.get(item.name) ?? []), ...values]);
+  }));
+  const criterion = Array.from(criterionMap, ([name, values]) => ({ name, average: values.length ? Math.round(values.reduce((sum, value) => sum + value, 0) / values.length * 100) / 100 : null, sampleSize: values.length }));
   const modelMap = new Map<string, { total: number; wins: number; scores: number[] }>();
   completed.forEach((record) => {
     const a = modelMap.get(record.modelA) ?? { total: 0, wins: 0, scores: [] };

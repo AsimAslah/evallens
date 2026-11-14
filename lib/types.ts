@@ -10,6 +10,15 @@ export interface Criterion {
   sortOrder: number;
 }
 
+export interface Rubric {
+  id: string;
+  name: string;
+  description: string;
+  version?: number;
+  createdAt?: string;
+  criteria: Criterion[];
+}
+
 export interface ScoreInput {
   criterionId: string;
   responseLabel: ResponseLabel;
@@ -53,4 +62,7 @@ export interface EvaluationRecord extends EvaluationInput {
   updatedAt: string;
   normalizedScoreA: number | null;
   normalizedScoreB: number | null;
+  rubricName: string;
+  rubricCriteria: Criterion[];
+  rubricAvailable: boolean;
 }
