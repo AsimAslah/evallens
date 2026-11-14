@@ -1,5 +1,5 @@
 import { isOwnerRequest, unauthorized } from "@/lib/auth";
-import { createEvaluation, listEvaluations } from "@/lib/db/repository";
+import { createEvaluation, EvaluationRubricError, listEvaluations } from "@/lib/db/repository";
 import { rateLimit, readJson } from "@/lib/http";
 import { evaluationSchema, formatZodError } from "@/lib/validation/evaluation";
 
@@ -30,6 +30,7 @@ export async function POST(request: Request) {
     return Response.json({ evaluation }, { status: 201, headers: { "Cache-Control": "no-store" } });
   } catch (error) {
     if (error instanceof Error && error.message === "PAYLOAD_TOO_LARGE") return Response.json({ error: "Payload exceeds 400 KB" }, { status: 413 });
+    if (error instanceof EvaluationRubricError) return Response.json({ error: error.message }, { status: 400 });
     if (error instanceof SyntaxError) return Response.json({ error: "Invalid JSON" }, { status: 400 });
     throw error;
   }

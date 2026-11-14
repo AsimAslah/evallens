@@ -11,8 +11,20 @@ const scoreSchema = z.object({
 const attachmentSchema = z.object({
   fileName: z.string().min(1).max(180),
   mimeType: z.enum(["image/png", "image/jpeg", "image/webp"]),
-  dataBase64: z.string().min(1).max(2_100_000)
+  dataBase64: z.string().min(1).max(350_000)
+}).superRefine((value, context) => {
+  const encodedType = /^data:(image\/(?:png|jpeg|webp));base64,[A-Za-z0-9+/]+={0,2}$/.exec(value.dataBase64)?.[1];
+  if (encodedType !== value.mimeType) context.addIssue({ code: "custom", path: ["dataBase64"], message: "Attachment data must be base64 encoded and match its image MIME type" });
 });
+
+const sourceUrlSchema = z.string().url().refine((value) => {
+  try {
+    const protocol = new URL(value).protocol;
+    return protocol === "https:" || protocol === "http:";
+  } catch {
+    return false;
+  }
+}, "Source URL must use HTTP or HTTPS");
 
 export const evaluationSchema = z.object({
   title: z.string().trim().min(3).max(160),
@@ -28,7 +40,7 @@ export const evaluationSchema = z.object({
   finalNotes: z.string().max(20_000).optional().default(""),
   evidenceA: z.string().trim().min(10).max(20_000),
   evidenceB: z.string().trim().min(10).max(20_000),
-  sourceUrl: z.union([z.url(), z.literal("")]).optional().default(""),
+  sourceUrl: z.union([sourceUrlSchema, z.literal("")]).optional().default(""),
   tags: z.array(z.string().trim().min(1).max(40)).max(12).default([]),
   rubricId: z.string().min(1).max(80),
   status: z.enum(["draft", "completed"]),
